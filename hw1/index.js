@@ -1,6 +1,7 @@
 var http = require("http");
 var https = require("https");
 const fetch = require("node-fetch");
+const fs = require("fs");
 require("dotenv").config();
 
 async function handle_generate_exam(req, res) {
@@ -72,6 +73,11 @@ async function handle_submit_results(req, res) {
   });
 }
 
+function serve_html(req, res) {
+  res.writeHead(200, { "content-type": "text/html" });
+  fs.createReadStream("index.html").pipe(res);
+}
+
 let routes = [
   {
     url: "/api/generate_exam",
@@ -87,6 +93,11 @@ let routes = [
     url: "/api/submit_results",
     method: "POST",
     handler: handle_submit_results,
+  },
+  {
+    url: "/home",
+    method: "GET",
+    handler: serve_html,
   },
 ];
 
