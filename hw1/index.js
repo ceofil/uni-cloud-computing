@@ -1,11 +1,44 @@
 var http = require("http");
+var https = require("https");
 
 function handle_generate_exam(req, res) {
-  console.log("generating exam");
+  https
+    .get("https://opentdb.com/api.php?amount=5&type=boolean", (resp) => {
+      let data = "";
+      resp.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      resp.on("end", () => {
+        // console.log(JSON.parse(data));
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.write(data);
+        res.end();
+      });
+    })
+    .on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
 }
 
 function handle_train_student(req, res) {
-  console.log("training student");
+  https
+    .get("https://yesno.wtf/api", (resp) => {
+      let data = "";
+      resp.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      resp.on("end", () => {
+        // console.log(JSON.parse(data));
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.write(data);
+        res.end();
+      });
+    })
+    .on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
 }
 
 function handle_submit_results(req, res) {
