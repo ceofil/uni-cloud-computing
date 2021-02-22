@@ -1,6 +1,6 @@
 ## generate exam
 
-https://pastebin.com/api/api_post.php
+https://opentdb.com/api.php?amount=100&type=boolean
 
 ## train student
 
@@ -8,4 +8,4 @@ https://yesno.wtf/api
 
 ## post results
 
-https://pastebin.com/api/api_post.php
+https://api.jsonbin.io/

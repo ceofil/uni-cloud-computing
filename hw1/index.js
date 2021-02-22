@@ -1,7 +1,9 @@
 var http = require("http");
 var https = require("https");
+const fetch = require("node-fetch");
+require("dotenv").config();
 
-function handle_generate_exam(req, res) {
+async function handle_generate_exam(req, res) {
   https
     .get("https://opentdb.com/api.php?amount=5&type=boolean", (resp) => {
       let data = "";
@@ -21,7 +23,7 @@ function handle_generate_exam(req, res) {
     });
 }
 
-function handle_train_student(req, res) {
+async function handle_train_student(req, res) {
   https
     .get("https://yesno.wtf/api", (resp) => {
       let data = "";
@@ -41,8 +43,33 @@ function handle_train_student(req, res) {
     });
 }
 
-function handle_submit_results(req, res) {
-  console.log("results submitted");
+async function handle_submit_results(req, res) {
+  let data = "";
+  req.on("data", (chunk) => {
+    data += chunk;
+  });
+  req.on("end", () => {
+    console.log(data);
+    fetch("https://api.jsonbin.io/b", {
+      method: "POST",
+      body: data,
+      headers: {
+        "Content-Type": "application/json",
+        "secret-key": process.env.x_master_key,
+        private: "false",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((text) => {
+        console.log("fasdfa", text);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.write(JSON.stringify(text));
+        res.end();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  });
 }
 
 let routes = [
@@ -63,7 +90,7 @@ let routes = [
   },
 ];
 
-var server = http.createServer(function (req, res) {
+var server = http.createServer(async function (req, res) {
   console.log(req.method, req.url);
 
   var found = false;
