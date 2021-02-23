@@ -7,7 +7,6 @@ require("dotenv").config();
 logs = [];
 
 async function log(s) {
-  console.log(s);
   logs.push(s);
 }
 
@@ -81,7 +80,7 @@ async function handle_submit_results(req, res) {
     results = {};
     score = 0;
     data = JSON.parse(data);
-    console.log(data);
+
     for (var q_index in data.results) {
       q = data.results[q_index];
       results[q_index] = {
@@ -182,7 +181,6 @@ function serve_metrics(req, res) {
   total_latency_time = 0;
   total_logs = logs.length;
   for (var lg of logs) {
-    console.log(lg.request.method, lg.request.url, "aaaaaa");
     if (
       lg.request.method in request_count &&
       lg.request.url in request_count[lg.request.method]
@@ -251,9 +249,6 @@ let routes = [
 ];
 
 var server = http.createServer(async function (req, res) {
-  var t0 = new Date().getTime();
-  console.log(req.method, req.url);
-
   var found = false;
   for (var route of routes) {
     if (route.url === req.url && route.method === req.method) {
