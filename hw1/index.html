@@ -1,12 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    test
-</body>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+      crossorigin="anonymous"
+    />
+    <style>
+      button,
+      h1 {
+        margin-left: 10px;
+      }
+      #train-msg-placeholder {
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Train student</h1>
+    <button type="button" class="btn btn-primary" onclick="train()">
+      train
+    </button>
+    <div id="train-msg-placeholder"></div>
+    <h1>Exam</h1>
+    <button
+      id="start-exam-btn"
+      type="button"
+      class="btn btn-primary"
+      onclick="start_exam()"
+    >
+      start exam
+    </button>
+    <div id="solver"></div>
+    <div id="submit_test"></div>
+  </body>
+  <script>
+    let decision = undefined;
+    let examen_started = false;
+    let solved = false;
+
+    let questions = {
+      response_code: 0,
+      results: [
+        {
+          category: "General Knowledge",
+          type: "boolean",
+          difficulty: "easy",
+          question: "French is an official language in Canada.",
+          correct_answer: "True",
+          incorrect_answers: ["False"],
+        },
+        {
+          category: "Entertainment: Music",
+          type: "boolean",
+          difficulty: "medium",
+          question:
+            "For his performance at ComplexCon 2016 in Long Beach, California, Skrillex revived his &quot;Mothership&quot; set piece for one night only.",
+          correct_answer: "True",
+          incorrect_answers: ["False"],
+        },
+        {
+          category: "Science & Nature",
+          type: "boolean",
+          difficulty: "hard",
+          question:
+            "The value of one Calorie is different than the value of one calorie.",
+          correct_answer: "True",
+          incorrect_answers: ["False"],
+        },
+        {
+          category: "Science: Mathematics",
+          type: "boolean",
+          difficulty: "easy",
+          question: "The sum of any two odd integers is odd.",
+          correct_answer: "False",
+          incorrect_answers: ["True"],
+        },
+        {
+          category: "Animals",
+          type: "boolean",
+          difficulty: "medium",
+          question: "Tigers have one colour of skin despite the stripey fur.",
+          correct_answer: "False",
+          incorrect_answers: ["True"],
+        },
+      ],
+    };
+
+    function train() {
+      console.log("train");
+      fetch("http://localhost:5000/api/train_student")
+        .then((response) => response.json())
+        .then((data) => {
+          decision = data.answer;
+          placeholder = document.getElementById("train-msg-placeholder");
+          placeholder.innerHTML = `After a long study session, the student decided the most optimal way to pass the exam is to answer ${
+            decision == "yes" ? "TRUE" : "FALSE"
+          } for every question`;
+        });
+    }
+
+    function solve() {
+      if (decision === undefined) {
+        alert("the student didn't train hard enough for this exam");
+        return;
+      }
+      if (solved) {
+        return;
+      }
+      solved = true;
+      console.log(decision);
+      console.log("solve");
+      var header = document.createElement("h1");
+      header.innerHTML = "Results";
+      var button = document.createElement("button");
+      button.innerHTML = "Submit answers";
+      button.classList = "btn btn-success";
+      var placeholder = document.getElementById("submit_test");
+      placeholder.appendChild(header);
+      placeholder.appendChild(button);
+      button.addEventListener("click", get_link);
+
+      questions = document.getElementsByTagName("li");
+      for (var question of questions) {
+        // question.innerHTML = answer.innerHTML + " FALSE";
+
+        answer = document.createElement("p");
+
+        if (decision == "yes") {
+          answer.innerHTML = "TRUE";
+          answer.style.color = "green";
+        } else {
+          answer.innerHTML = "FALSE";
+          answer.style.color = "red";
+        }
+
+        question.appendChild(answer);
+      }
+    }
+
+    function start_exam() {
+      if (examen_started) {
+        return;
+      }
+      examen_started = true;
+      console.log("start exam");
+      var button = document.createElement("button");
+      button.innerHTML = "solve";
+      button.classList = "btn btn-primary";
+      var placeholder = document.getElementById("solver");
+      placeholder.appendChild(button);
+      button.addEventListener("click", solve);
+
+      var list = document.createElement("ol");
+      placeholder.appendChild(list);
+
+      for (var question of questions.results) {
+        var element = document.createElement("li");
+        element.innerHTML = question.question;
+        list.appendChild(element);
+      }
+
+      var start_btn = document.getElementById("start-exam-btn");
+      start_btn.remove();
+    }
+
+    function get_link() {
+      console.log("get link");
+    }
+  </script>
 </html>
