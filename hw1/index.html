@@ -19,6 +19,9 @@
       #train-msg-placeholder {
         margin: 10px;
       }
+      #response {
+        margin-left: 10px;
+      }
     </style>
   </head>
   <body>
@@ -43,6 +46,7 @@
     let decision = undefined;
     let examen_started = false;
     let solved = false;
+    let submmited = false;
 
     let questions = {
       response_code: 0,
@@ -94,6 +98,7 @@
 
     function train() {
       console.log("train");
+      decision = "yes";
       fetch("http://localhost:5000/api/train_student")
         .then((response) => response.json())
         .then((data) => {
@@ -126,8 +131,8 @@
       placeholder.appendChild(button);
       button.addEventListener("click", get_link);
 
-      questions = document.getElementsByTagName("li");
-      for (var question of questions) {
+      qs = document.getElementsByTagName("li");
+      for (var question of qs) {
         // question.innerHTML = answer.innerHTML + " FALSE";
 
         answer = document.createElement("p");
@@ -160,18 +165,43 @@
       var list = document.createElement("ol");
       placeholder.appendChild(list);
 
-      for (var question of questions.results) {
-        var element = document.createElement("li");
-        element.innerHTML = question.question;
-        list.appendChild(element);
-      }
+      fetch("http://localhost:5000/api/generate_exam")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Received questions");
+          questions = data;
+          console.log(data);
+          for (var question of questions.results) {
+            var element = document.createElement("li");
+            element.innerHTML = question.question;
+            list.appendChild(element);
+          }
 
-      var start_btn = document.getElementById("start-exam-btn");
-      start_btn.remove();
+          var start_btn = document.getElementById("start-exam-btn");
+          start_btn.remove();
+        });
     }
 
     function get_link() {
       console.log("get link");
+      if (submmited) {
+        return;
+      }
+      questions.forced_answer = decision;
+      fetch("http://localhost:5000/api/submit_results", {
+        method: "POST",
+        body: JSON.stringify(questions),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          submmited = true;
+          var placeholder = document.getElementById("submit_test");
+          response = document.createElement("p");
+          response.id = "response";
+          response.innerHTML = `You can see your results at: https://api.jsonbin.io/b/${data.id}`;
+          placeholder.appendChild(response);
+        });
     }
   </script>
 </html>

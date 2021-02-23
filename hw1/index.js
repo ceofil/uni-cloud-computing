@@ -6,7 +6,7 @@ require("dotenv").config();
 
 async function handle_generate_exam(req, res) {
   https
-    .get("https://opentdb.com/api.php?amount=5&type=boolean", (resp) => {
+    .get("https://opentdb.com/api.php?amount=2&type=boolean", (resp) => {
       let data = "";
       resp.on("data", (chunk) => {
         data += chunk;
@@ -50,10 +50,36 @@ async function handle_submit_results(req, res) {
     data += chunk;
   });
   req.on("end", () => {
+    results = {};
+    score = 0;
+    data = JSON.parse(data);
     console.log(data);
+    for (var q_index in data.results) {
+      q = data.results[q_index];
+      results[q_index] = {
+        Question: q.question,
+        CorrectAnswer: q.correct_answer,
+        YourAnswer: data.forced_answer == "yes" ? "True" : "False",
+      };
+      if (results[q_index].CorrectAnswer == results[q_index].YourAnswer) {
+        score++;
+      }
+    }
+    passed = score > data.results.length / 2;
+
+    console.log("ffff", {
+      Passed: passed,
+      Score: score,
+      Answers: results,
+    });
+
     fetch("https://api.jsonbin.io/b", {
       method: "POST",
-      body: data,
+      body: JSON.stringify({
+        Passed: passed,
+        Score: score,
+        Answers: results,
+      }),
       headers: {
         "Content-Type": "application/json",
         "secret-key": process.env.x_master_key,
