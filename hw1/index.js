@@ -4,7 +4,15 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 require("dotenv").config();
 
+logs = [];
+
+async function log(s) {
+  console.log(s);
+  logs.push(s);
+}
+
 async function handle_generate_exam(req, res) {
+  var t0 = new Date().getTime();
   https
     .get("https://opentdb.com/api.php?amount=2&type=boolean", (resp) => {
       let data = "";
@@ -17,6 +25,15 @@ async function handle_generate_exam(req, res) {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.write(data);
         res.end();
+        var t1 = new Date().getTime();
+        log({
+          request: {
+            method: req.method,
+            url: req.url,
+          },
+          response: data,
+          latency: t1 - t0,
+        });
       });
     })
     .on("error", (err) => {
@@ -25,6 +42,7 @@ async function handle_generate_exam(req, res) {
 }
 
 async function handle_train_student(req, res) {
+  var t0 = new Date().getTime();
   https
     .get("https://yesno.wtf/api", (resp) => {
       let data = "";
@@ -37,6 +55,15 @@ async function handle_train_student(req, res) {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.write(data);
         res.end();
+        var t1 = new Date().getTime();
+        log({
+          request: {
+            method: req.method,
+            url: req.url,
+          },
+          response: data,
+          latency: t1 - t0,
+        });
       });
     })
     .on("error", (err) => {
@@ -45,6 +72,7 @@ async function handle_train_student(req, res) {
 }
 
 async function handle_submit_results(req, res) {
+  var t0 = new Date().getTime();
   let data = "";
   req.on("data", (chunk) => {
     data += chunk;
@@ -67,12 +95,6 @@ async function handle_submit_results(req, res) {
     }
     passed = score > data.results.length / 2;
 
-    console.log("ffff", {
-      Passed: passed,
-      Score: score,
-      Answers: results,
-    });
-
     fetch("https://api.jsonbin.io/b", {
       method: "POST",
       body: JSON.stringify({
@@ -88,10 +110,19 @@ async function handle_submit_results(req, res) {
     })
       .then((resp) => resp.json())
       .then((text) => {
-        console.log("fasdfa", text);
         res.writeHead(200, { "Content-Type": "application/json" });
         res.write(JSON.stringify(text));
         res.end();
+
+        var t1 = new Date().getTime();
+        log({
+          request: {
+            method: req.method,
+            url: req.url,
+          },
+          response: text,
+          latency: t1 - t0,
+        });
       })
       .catch(function (error) {
         console.log(error);
@@ -100,8 +131,90 @@ async function handle_submit_results(req, res) {
 }
 
 function serve_html(req, res) {
+  var t0 = new Date().getTime();
   res.writeHead(200, { "content-type": "text/html" });
   fs.createReadStream("index.html").pipe(res);
+
+  var t1 = new Date().getTime();
+  log({
+    request: {
+      method: req.method,
+      url: req.url,
+    },
+    response: "index.html",
+    latency: t1 - t0,
+  });
+}
+
+function serve_logs(req, res) {
+  var t0 = new Date().getTime();
+  res.writeHead(200, { "Content-Type": "application/json" });
+  res.write(JSON.stringify(logs));
+  res.end();
+
+  var t1 = new Date().getTime();
+  log({
+    request: {
+      method: req.method,
+      url: req.url,
+    },
+    response: JSON.stringify(logs),
+    latency: t1 - t0,
+  });
+}
+
+function serve_metrics(req, res) {
+  var t0 = new Date().getTime();
+  res.writeHead(200, { "Content-Type": "application/json" });
+  request_count = {
+    GET: {
+      "/home": 0,
+      "/api/generate_exam": 0,
+      "/api/train_student": 0,
+      "/api/logs": 0,
+      "/api/metrics": 0,
+    },
+    POST: {
+      "/api/submit_results": 0,
+    },
+    BAD_REQUESTS: 0,
+  };
+  total_latency_time = 0;
+  total_logs = logs.length;
+  for (var lg of logs) {
+    console.log(lg.request.method, lg.request.url, "aaaaaa");
+    if (
+      lg.request.method in request_count &&
+      lg.request.url in request_count[lg.request.method]
+    ) {
+      request_count[lg.request.method][lg.request.url]++;
+    } else {
+      request_count.BAD_REQUESTS++;
+    }
+    total_latency_time += lg.latency;
+  }
+  metrics = {
+    count: request_count,
+    average_latency: total_latency_time / total_logs,
+    logs: logs,
+  };
+
+  res.write(JSON.stringify(metrics));
+  res.end();
+
+  var t1 = new Date().getTime();
+  log({
+    request: {
+      method: req.method,
+      url: req.url,
+    },
+    response: {
+      count: request_count,
+      average_latency: total_latency_time / total_logs,
+      logs: JSON.stringify(logs),
+    },
+    latency: t1 - t0,
+  });
 }
 
 let routes = [
@@ -125,9 +238,20 @@ let routes = [
     method: "GET",
     handler: serve_html,
   },
+  {
+    url: "/api/logs",
+    method: "GET",
+    handler: serve_logs,
+  },
+  {
+    url: "/api/metrics",
+    method: "GET",
+    handler: serve_metrics,
+  },
 ];
 
 var server = http.createServer(async function (req, res) {
+  var t0 = new Date().getTime();
   console.log(req.method, req.url);
 
   var found = false;
