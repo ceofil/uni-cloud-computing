@@ -1,7 +1,6 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
-import { createServer, IncomingMessage, ServerResponse } from "http";
-import { request_handler } from "./RouteHandler";
+import { get_server } from "./RouteHandler";
 const port = 5000;
 
 function onStartCallback(error: Error) {
@@ -15,7 +14,7 @@ function onStartCallback(error: Error) {
 function main(): void {
   createConnection()
     .then(async (connection) => {
-      const server = createServer(request_handler);
+      const server = get_server(connection);
       server.listen(port, onStartCallback);
     })
     .catch((error) => console.log(error));

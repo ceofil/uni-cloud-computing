@@ -1,10 +1,15 @@
-import { createServer, IncomingMessage, ServerResponse } from "http";
-import { url } from "inspector";
+import { IncomingMessage, ServerResponse, createServer } from "http";
+import { Connection } from "typeorm";
+import { User, Message } from "./entity";
 
 type Route = {
   method: "GET" | "POST" | "PUT" | "DELETE";
   urlRegex: RegExp | string;
-  handler: (request: IncomingMessage, response: ServerResponse) => void;
+  handler: (
+    request: IncomingMessage,
+    response: ServerResponse,
+    conn: Connection
+  ) => void;
 };
 
 function build_url_regex(url_template: string): RegExp {
@@ -20,36 +25,123 @@ function build_url_regex(url_template: string): RegExp {
 let routes: Route[] = [];
 routes.push({
   method: "GET",
-  urlRegex: build_url_regex("/collection"),
-  handler: (req: IncomingMessage, res: ServerResponse) => {
-    res.end("collection URL: " + req.url);
+  urlRegex: build_url_regex("/users"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    res.setHeader("Content-Type", "application/json");
+    const users = await conn.getRepository(User).find();
+    res.write(JSON.stringify(users));
+    res.statusCode = 200;
+    res.end();
   },
 });
 
 routes.push({
   method: "GET",
-  urlRegex: build_url_regex("/collection/:id"),
-  handler: (req: IncomingMessage, res: ServerResponse) => {
-    res.end("collection id URL: " + req.url);
+  urlRegex: build_url_regex("/users/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    const id = req.url.split("/")[2];
+    res.setHeader("Content-Type", "application/json");
+    try {
+      const user = await conn.getRepository(User).findOneOrFail(id);
+      res.write(JSON.stringify(user));
+      res.statusCode = 200;
+      res.end();
+    } catch {
+      res.statusCode = 404;
+      res.end("User not found");
+    }
+  },
+});
+
+routes.push({
+  method: "GET",
+  urlRegex: build_url_regex("/users/:id/messages"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    const id = req.url.split("/")[2];
+    res.setHeader("Content-Type", "application/json");
+    try {
+      const user = await conn.getRepository(User).findOneOrFail(id);
+      const messages = await conn.getRepository(Message).find({ user: user });
+      res.write(JSON.stringify(messages));
+      res.statusCode = 200;
+      res.end();
+    } catch {
+      res.statusCode = 404;
+      res.end("User not found");
+    }
+  },
+});
+
+routes.push({
+  method: "GET",
+  urlRegex: build_url_regex("/users/:id/messages/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    const userId = req.url.split("/")[2];
+    const msgId = req.url.split("/")[4];
+    res.setHeader("Content-Type", "application/json");
+    try {
+      const user = await conn.getRepository(User).findOneOrFail(userId);
+      const messages = await conn
+        .getRepository(Message)
+        .find({ user: user, id: Number(msgId) });
+      console.log(messages);
+      if (messages.length > 0) {
+        res.write(JSON.stringify(messages));
+        res.statusCode = 200;
+        res.end();
+      } else {
+        res.statusCode = 404;
+        res.end("Message not found");
+      }
+    } catch {
+      res.statusCode = 404;
+      res.end("User not found");
+    }
   },
 });
 
 function bad_url_handler(req: IncomingMessage, res: ServerResponse) {
-  res.end("bad URL: " + req.url);
+  res.statusCode = 404;
+  res.end(`url not found (${req.url})`);
 }
 
-export function request_handler(req: IncomingMessage, res: ServerResponse) {
-  if (req.url !== "/favicon.ico") {
-    console.log(req.method, req.url);
-  }
+export function get_server(conn: Connection) {
+  return createServer((req: IncomingMessage, res: ServerResponse) => {
+    if (req.url !== "/favicon.ico") {
+      console.log(req.method, req.url);
+    }
 
-  let route = routes.find(
-    (r) => req.method == r.method && req.url.match(r.urlRegex) !== null
-  );
+    let route = routes.find(
+      (r) => req.method == r.method && req.url!.match(r.urlRegex) !== null
+    );
 
-  if (route) {
-    route.handler(req, res);
-  } else {
-    bad_url_handler(req, res);
-  }
+    if (route) {
+      route.handler(req, res, conn);
+    } else {
+      bad_url_handler(req, res);
+    }
+  });
 }
+
+/*
+/users/, 
+/users/:id, 
+/users/:id/messages, 
+/users/:id/messages/:id
+*/
