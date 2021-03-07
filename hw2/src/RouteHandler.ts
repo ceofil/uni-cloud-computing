@@ -13,7 +13,8 @@ function build_url_regex(url_template: string): RegExp {
   } else {
     url_template += "/?";
   }
-  return new RegExp(`^${url_template.replace("/:id", "/\\d+")}$`);
+  url_template = url_template.split("/:id").join("/(\\d+)");
+  return new RegExp(`^${url_template}$`);
 }
 
 let routes: Route[] = [];
