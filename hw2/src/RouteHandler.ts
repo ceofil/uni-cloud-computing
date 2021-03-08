@@ -216,6 +216,97 @@ routes.push({
   },
 });
 
+routes.push({
+  method: "PUT",
+  urlRegex: build_url_regex("/users"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    res.statusCode = 405;
+    res.end();
+  },
+});
+
+routes.push({
+  method: "PUT",
+  urlRegex: build_url_regex("/users/:id/messages"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    res.statusCode = 405;
+    res.end();
+  },
+});
+
+routes.push({
+  method: "PUT",
+  urlRegex: build_url_regex("/users/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    let id = req.url.split("/")[2];
+    let data = "";
+    req.on("data", (chunk) => {
+      data += chunk;
+    });
+    req.on("end", async () => {
+      let body = JSON.parse(data);
+      const userRepo = await conn.getRepository(User);
+      try {
+        const user = await userRepo.findOneOrFail(id);
+        user.name = body.name;
+        await userRepo.save(user);
+        res.write(JSON.stringify(user));
+        res.statusCode = 200;
+      } catch {
+        res.statusCode = 404;
+      }
+      res.end();
+    });
+  },
+});
+
+routes.push({
+  method: "PUT",
+  urlRegex: build_url_regex("/users/:id/messages/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    let id = req.url.split("/")[2];
+    let msgId = req.url.split("/")[4];
+    let data = "";
+    req.on("data", (chunk) => {
+      data += chunk;
+    });
+    req.on("end", async () => {
+      let body = JSON.parse(data);
+      const userRepo = await conn.getRepository(User);
+      const msgRepo = await conn.getRepository(Message);
+      try {
+        const user = await userRepo.findOneOrFail(id);
+        const messages = await msgRepo.find({ user: user, id: Number(msgId) });
+        const message = messages[0];
+        message.text = body.text;
+        message.edited = true;
+        await msgRepo.save(message);
+        res.write(JSON.stringify(message));
+        res.statusCode = 200;
+      } catch {
+        res.statusCode = 404;
+      }
+      res.end();
+    });
+  },
+});
+
 function bad_url_handler(req: IncomingMessage, res: ServerResponse) {
   res.statusCode = 404;
   res.end(`url not found (${req.url})`);
