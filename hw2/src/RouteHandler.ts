@@ -116,6 +116,106 @@ routes.push({
   },
 });
 
+routes.push({
+  method: "POST",
+  urlRegex: build_url_regex("/users"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    let data = "";
+    req.on("data", (chunk) => {
+      data += chunk;
+    });
+    req.on("end", async () => {
+      let body = JSON.parse(data);
+      let user = new User(body.name);
+      res.setHeader("Content-Type", "application/json");
+      user = await conn.getRepository(User).save(user);
+      res.setHeader("Location", `/users/${user.id}`);
+      res.write(JSON.stringify({ id: user.id }));
+      res.statusCode = 200;
+      res.end();
+    });
+  },
+});
+
+routes.push({
+  method: "POST",
+  urlRegex: build_url_regex("/users/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    let id = req.url.split("/")[2];
+    res.setHeader("Content-Type", "application/json");
+    try {
+      const _ = await conn.getRepository(User).findOneOrFail(id);
+      res.statusCode = 409; //resource already exists
+    } catch {
+      res.statusCode = 404;
+    }
+    res.end();
+  },
+});
+
+routes.push({
+  method: "POST",
+  urlRegex: build_url_regex("/users/:id/messages"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    let id = req.url.split("/")[2];
+    let data = "";
+    req.on("data", (chunk) => {
+      data += chunk;
+    });
+    req.on("end", async () => {
+      let body = JSON.parse(data);
+      try {
+        const user = await conn.getRepository(User).findOneOrFail(id);
+        let message = new Message(body.text, user);
+        res.setHeader("Content-Type", "application/json");
+
+        message = await conn.getRepository(Message).save(message);
+        res.setHeader("Location", `/users/${id}/messages${message.id}`);
+        res.write(JSON.stringify({ id: message.id }));
+        res.statusCode = 200;
+      } catch {
+        res.write(JSON.stringify({ error: "user not found" }));
+        res.statusCode = 404;
+      }
+      res.end();
+    });
+  },
+});
+
+routes.push({
+  method: "POST",
+  urlRegex: build_url_regex("/users/:id/messages/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    let id = req.url.split("/")[2];
+    let msgId = req.url.split("/")[4];
+    res.setHeader("Content-Type", "application/json");
+    try {
+      const user = await conn.getRepository(User).findOneOrFail(id);
+      const _ = await conn.getRepository(Message).findOneOrFail(msgId);
+      res.statusCode = 409;
+    } catch {
+      res.statusCode = 404;
+    }
+    res.end();
+  },
+});
+
 function bad_url_handler(req: IncomingMessage, res: ServerResponse) {
   res.statusCode = 404;
   res.end(`url not found (${req.url})`);
