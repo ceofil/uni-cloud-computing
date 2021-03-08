@@ -293,17 +293,100 @@ routes.push({
       try {
         const user = await userRepo.findOneOrFail(id);
         const messages = await msgRepo.find({ user: user, id: Number(msgId) });
-        const message = messages[0];
-        message.text = body.text;
-        message.edited = true;
-        await msgRepo.save(message);
-        res.write(JSON.stringify(message));
-        res.statusCode = 200;
+        if (messages.length == 0) {
+          res.statusCode = 404;
+        } else {
+          const message = messages[0];
+          message.text = body.text;
+          message.edited = true;
+          await msgRepo.save(message);
+          res.write(JSON.stringify(message));
+          res.statusCode = 200;
+        }
       } catch {
         res.statusCode = 404;
       }
       res.end();
     });
+  },
+});
+
+routes.push({
+  method: "DELETE",
+  urlRegex: build_url_regex("/users/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    const id = req.url.split("/")[2];
+    res.setHeader("Content-Type", "application/json");
+    try {
+      const userRepo = await conn.getRepository(User);
+      const user = await userRepo.findOneOrFail(id);
+      userRepo.remove(user);
+      res.statusCode = 200;
+      res.end();
+    } catch {
+      res.statusCode = 404;
+      res.end("User not found");
+    }
+  },
+});
+
+routes.push({
+  method: "DELETE",
+  urlRegex: build_url_regex("/users/:id/messages/:id"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    const id = req.url.split("/")[2];
+    const msgId = req.url.split("/")[4];
+    res.setHeader("Content-Type", "application/json");
+    const userRepo = await conn.getRepository(User);
+    const msgRepo = await conn.getRepository(Message);
+    try {
+      const user = await userRepo.findOneOrFail(id);
+      const messages = await msgRepo.find({ user: user, id: Number(msgId) });
+      if (messages.length == 0) {
+        res.statusCode = 404;
+      } else {
+        const message = messages[0];
+        msgRepo.remove(message);
+        res.statusCode = 200;
+      }
+    } catch {
+      res.statusCode = 404;
+    }
+    res.end();
+  },
+});
+
+routes.push({
+  method: "DELETE",
+  urlRegex: build_url_regex("/users"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    res.statusCode = 405;
+    res.end();
+  },
+});
+
+routes.push({
+  method: "DELETE",
+  urlRegex: build_url_regex("/users/:id/messages"),
+  handler: async function (
+    req: IncomingMessage,
+    res: ServerResponse,
+    conn: Connection
+  ) {
+    res.statusCode = 405;
+    res.end();
   },
 });
 

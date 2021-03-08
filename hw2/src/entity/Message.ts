@@ -22,7 +22,7 @@ export class Message {
   @CreateDateColumn()
   createdDate: Date;
 
-  @ManyToOne((type) => User)
+  @ManyToOne((type) => User, { onDelete: "CASCADE" })
   @JoinColumn()
   user: User;
 
