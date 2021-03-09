@@ -23,6 +23,7 @@ function build_url_regex(url_template: string): RegExp {
 }
 
 let routes: Route[] = [];
+
 routes.push({
   method: "GET",
   urlRegex: build_url_regex("/users"),
@@ -325,7 +326,7 @@ routes.push({
       const userRepo = await conn.getRepository(User);
       const user = await userRepo.findOneOrFail(id);
       userRepo.remove(user);
-      res.statusCode = 200;
+      res.statusCode = 204;
       res.end();
     } catch {
       res.statusCode = 404;
@@ -355,7 +356,7 @@ routes.push({
       } else {
         const message = messages[0];
         msgRepo.remove(message);
-        res.statusCode = 200;
+        res.statusCode = 204;
       }
     } catch {
       res.statusCode = 404;

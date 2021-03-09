@@ -1,0 +1,370 @@
+{
+	"id": "5a8b3e6b-21a4-467f-8f2b-3c3a83c6f64d",
+	"name": "cc-hw2",
+	"timestamp": "2021-03-09T09:43:14.652Z",
+	"collection_id": "867f519e-f192-4a3b-b6ec-0181264d4e12",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 0,
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "0867bdfa-fc25-4b04-9e75-ae3ea59a2e8e",
+			"name": "/users",
+			"url": "http://localhost:5000/users",
+			"time": 410,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				410
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "12830367-154f-4f29-832d-b50bb82e7220",
+			"name": "/users/:id",
+			"url": "http://localhost:5000/users/1",
+			"time": 65,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				65
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2eb1d249-dcdb-44ea-a005-2c6ac88169b1",
+			"name": "/users/:id/messages",
+			"url": "http://localhost:5000/users/1/messages",
+			"time": 132,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				132
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "4191d021-d2bc-4a1a-9a10-0c2efccbb4ee",
+			"name": "/users/:id/messages/:id",
+			"url": "http://localhost:5000/users/1/messages/25",
+			"time": 246,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				246
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "bb681edd-f03c-4fea-8b0f-e064d9c67b9e",
+			"name": "/users",
+			"url": "http://localhost:5000/users",
+			"time": 3,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				3
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "d6a06ca0-de40-487b-ac5c-06548ee3873b",
+			"name": "/users/:id",
+			"url": "http://localhost:5000/users/12",
+			"time": 154,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				154
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "84588ab9-52b9-4dd1-91f3-47dd6898fc41",
+			"name": "/users/:id/messages/:id",
+			"url": "http://localhost:5000/users/12/messages/30",
+			"time": 163,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				163
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "d94f80fb-3f18-4476-aea4-8b9b20a15882",
+			"name": "/users/:id/messages",
+			"url": "http://localhost:5000/users/1/messages",
+			"time": 3,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				3
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "7ada651b-ce05-4c3e-8f63-0bd1306bfb55",
+			"name": "/users",
+			"url": "http://localhost:5000/users",
+			"time": 182,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				182
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "dfd0a1e4-1585-4527-b457-9fd812bc9349",
+			"name": "/users/:id",
+			"url": "http://localhost:5000/users/12",
+			"time": 60,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				60
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "894d5915-aedf-4e82-b89b-4e50548706d3",
+			"name": "/users/:id/messages",
+			"url": "http://localhost:5000/users/1/messages",
+			"time": 289,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				289
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "fcfa636c-9f61-44c4-bec9-9007d7a693b2",
+			"name": "/users/:id/messages/:id",
+			"url": "http://localhost:5000/users/1/messages/1234",
+			"time": 123,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				123
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "f1bcbd07-23f4-42d2-9937-ea78fe81f5fd",
+			"name": "/users",
+			"url": "http://localhost:5000/users",
+			"time": 4,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				4
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "6ef161cf-3251-4a17-9025-60bf8c82e8ce",
+			"name": "/users/:id/messages",
+			"url": "http://localhost:5000/users/1/messages",
+			"time": 3,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				3
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "339799a6-af28-49e7-8757-004f0e63aefb",
+			"name": "/users/:id ***",
+			"url": "http://localhost:5000/users/19",
+			"time": 62,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				62
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "f3541632-371a-4a38-97cc-a2e2b4420a9e",
+			"name": "/users/:id/messages/:id ***",
+			"url": "http://localhost:5000/users/1/messages/36",
+			"time": 126,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				126
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 2025,
+	"collection": {
+		"requests": [
+			{
+				"id": "0867bdfa-fc25-4b04-9e75-ae3ea59a2e8e",
+				"method": "GET"
+			},
+			{
+				"id": "12830367-154f-4f29-832d-b50bb82e7220",
+				"method": "GET"
+			},
+			{
+				"id": "2eb1d249-dcdb-44ea-a005-2c6ac88169b1",
+				"method": "GET"
+			},
+			{
+				"id": "4191d021-d2bc-4a1a-9a10-0c2efccbb4ee",
+				"method": "GET"
+			},
+			{
+				"id": "bb681edd-f03c-4fea-8b0f-e064d9c67b9e",
+				"method": "PUT"
+			},
+			{
+				"id": "d6a06ca0-de40-487b-ac5c-06548ee3873b",
+				"method": "PUT"
+			},
+			{
+				"id": "84588ab9-52b9-4dd1-91f3-47dd6898fc41",
+				"method": "PUT"
+			},
+			{
+				"id": "d94f80fb-3f18-4476-aea4-8b9b20a15882",
+				"method": "PUT"
+			},
+			{
+				"id": "7ada651b-ce05-4c3e-8f63-0bd1306bfb55",
+				"method": "POST"
+			},
+			{
+				"id": "dfd0a1e4-1585-4527-b457-9fd812bc9349",
+				"method": "POST"
+			},
+			{
+				"id": "894d5915-aedf-4e82-b89b-4e50548706d3",
+				"method": "POST"
+			},
+			{
+				"id": "fcfa636c-9f61-44c4-bec9-9007d7a693b2",
+				"method": "POST"
+			},
+			{
+				"id": "f1bcbd07-23f4-42d2-9937-ea78fe81f5fd",
+				"method": "DELETE"
+			},
+			{
+				"id": "6ef161cf-3251-4a17-9025-60bf8c82e8ce",
+				"method": "DELETE"
+			},
+			{
+				"id": "339799a6-af28-49e7-8757-004f0e63aefb",
+				"method": "DELETE"
+			},
+			{
+				"id": "f3541632-371a-4a38-97cc-a2e2b4420a9e",
+				"method": "DELETE"
+			}
+		]
+	}
+}
